@@ -1,0 +1,102 @@
+create database Oficina;
+-- drop database Oficina;
+use Oficina;
+
+create table Cliente(
+	idCliente int primary key auto_increment,
+    TipoCliente enum ('PF', 'PJ'),
+    Endereco varchar(15),
+    Cidade varchar(15),
+    Estado char(2),
+    Telefone char(9)
+);
+
+alter table Cliente auto_increment = 1;
+
+select * from Cliente;
+
+
+ insert into Cliente (TipoCliente, Endereco, Cidade, Estado, Telefone)
+			values ('PF', 'Rua A, 23', 'Cidade A', 'RJ', '984553421'),
+				   ('PF', 'Rua Jaci, 27', 'B.Roxo', 'RJ', '954671232'),
+                   ('PJ', 'Rua dois, 21', 'Caxias', 'MG', '999999999'),
+                   ('PF', 'Rua Luis, 22', 'Belford Roxo', 'RJ', '888888888'),
+                   ('PJ', 'Rua Casemiro, 1', 'Santos', 'SP', '777777777'),
+                   ('PJ', 'Rua Jacatir, 10', 'Vilar dos Teles', 'RJ', '666666666');
+
+create table ClientePF(
+	idClientePF int primary key,
+    Nome varchar(30),
+    CPF char(11),
+    constraint unique_cpf_clientePF unique (CPF),
+    constraint fk_id_cliente_pf foreign key (idClientePF) references Cliente(idCliente)
+);
+
+insert into ClientePF values (1, 'Marcos M. Almeida', '11111111111'),
+							 (2, 'Vania A. Souza', '12345678910'),
+                             (4, 'Wilson F. Barcelos', '98765432110');
+
+create table ClientePJ(
+	idClientePJ int primary key,
+    RazaoSocial varchar(30),
+    NomeFantasia varchar(30),
+    CNPJ char(14),
+    constraint unique_cnpj_clientePJ unique (CNPJ),
+    constraint fk_id_cliente_pj foreign key (idClientePJ) references Cliente(idCliente)
+);
+
+insert into ClientePJ values (3, 'Souza Transportes Ltda.', 'Conduzindo você', '12345678000157'),
+							 (5, 'Transportes SA.', 'Frota S', '98765432000114'),
+                             (6, 'Entregas LC', 'Entrega Facil', '54678123000145');
+
+create table Veiculo(
+	idVeiculo int primary key auto_increment,
+    idCliente int,
+    TipoVeiculo enum ('Carro de passeio', 'Caminhão', 'Ônibus'),
+    Placa char(7),
+    Modelo varchar(18),
+    Marca varchar(10),
+    Ano char(4),
+    Doc varchar(15),
+    constraint unique_placa_veiculo unique (Placa),
+    constraint unique_doc_veiculo unique (Doc),
+    constraint fk_id_cliente foreign key (idCliente) references Cliente(idCliente)
+);
+ 
+ alter table Veiculo auto_increment = 1;
+select * from Veiculo;
+insert into Veiculo (idCliente, TipoVeiculo, Placa, Modelo, Marca, Ano, Doc)     
+			values         (1, 'Carro de passeio', 'KMJ3728', 'Fiesta', 'Ford', '2020', '11111111111'),
+						   (2, 'Carro de passeio', 'JFC2132', 'Fox', 'VW', '2022', '123456789'),
+                           (3, 'Ônibus', 'JMJ3003', 'Onibus1', 'Mercedes', '2023', '1224467990'),
+                           (4, 'Carro de passeio', 'KXM2391', 'X1', 'BMW', '2023', '2345671890'),
+                           (5, 'Caminhão', 'HGF1001', 'Caminhao1', 'Scania', '2017', '22222233456'),
+                           (6, 'Caminhão', 'HGI2002', 'Caminhao2', 'Scania', '2003', '111145678900');
+
+create table Servico(
+	idServico int primary key auto_increment,
+    idVeiculo int,
+    TipoServico enum ('Revisão', 'Elétrico', 'Mecânico'),
+    MecResp varchar(15),
+    constraint fk_id_Veiculo foreign key (idVeiculo) references Veiculo (idVeiculo)
+);
+
+alter table Servico auto_increment = 1;
+
+insert into Servico (idVeiculo, TipoServico, MecResp)
+                     values (1, 'Mecânico', 'Severino'),
+						   (2, 'Elétrico', 'Marcos'),
+                           (3, 'Mecânico', 'Severino'),
+                           (4, 'Revisão', 'André'),
+                           (5, 'Mecânico', 'Marcos'),
+                           (6, 'Elétrico', 'André');
+                           
+Select idCliente, TipoCliente, Nome, Endereco, Cidade, Estado, Telefone, CPF 
+				from Cliente inner join ClientePF ON idCliente = idClientePF;
+                
+Select idCliente, TipoCliente, RazaoSocial, NomeFantasia Endereco, Cidade, Estado, Telefone, CNPJ 
+				from Cliente inner join ClientePJ ON idCliente = idClientePJ;
+                
+Select * from Cliente c inner join ClientePF cpf ON idCliente = idClientePF
+             inner join Veiculo v ON c.idCliente = v.idCliente
+            order by Nome;
